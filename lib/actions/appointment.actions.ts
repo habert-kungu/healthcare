@@ -10,19 +10,20 @@ import {
   DATABASE_ID,
   databases,
   messaging,
+  PATIENT_COLLECTION_ID,
 } from "../appwrite.config";
 import { formatDateTime, parseStringify } from "../utils";
 
 //  CREATE APPOINTMENT
 export const createAppointment = async (
-  appointment: CreateAppointmentParams
+  appointment: CreateAppointmentParams,
 ) => {
   try {
     const newAppointment = await databases.createDocument(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
       ID.unique(),
-      appointment
+      appointment,
     );
 
     revalidatePath("/admin");
@@ -38,28 +39,51 @@ export const getRecentAppointmentList = async () => {
     const appointments = await databases.listDocuments(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
-      [Query.orderDesc("$createdAt")]
+      [
+        Query.orderDesc("$createdAt"),
+        Query.limit(100),
+      ],
     );
 
-    // const scheduledAppointments = (
-    //   appointments.documents as Appointment[]
-    // ).filter((appointment) => appointment.status === "scheduled");
+    // Fetch patient data for each appointment
+    const appointmentsWithPatients = await Promise.all(
+      appointments.documents.map(async (appointment: any) => {
+        try {
+          // Skip if patient reference is null or undefined
+          if (!appointment.patient || !appointment.patient.$id) {
+            console.warn(`Appointment ${appointment.$id} has no patient reference`);
+            return {
+              ...appointment,
+              patient: null
+            };
+          }
 
-    // const pendingAppointments = (
-    //   appointments.documents as Appointment[]
-    // ).filter((appointment) => appointment.status === "pending");
-
-    // const cancelledAppointments = (
-    //   appointments.documents as Appointment[]
-    // ).filter((appointment) => appointment.status === "cancelled");
-
-    // const data = {
-    //   totalCount: appointments.total,
-    //   scheduledCount: scheduledAppointments.length,
-    //   pendingCount: pendingAppointments.length,
-    //   cancelledCount: cancelledAppointments.length,
-    //   documents: appointments.documents,
-    // };
+          try {
+            const patient = await databases.getDocument(
+              DATABASE_ID!,
+              PATIENT_COLLECTION_ID!,
+              appointment.patient.$id
+            );
+            return {
+              ...appointment,
+              patient: patient
+            };
+          } catch (patientError) {
+            console.error(`Error fetching patient for appointment ${appointment.$id}:`, patientError);
+            return {
+              ...appointment,
+              patient: null
+            };
+          }
+        } catch (error) {
+          console.error(`Error processing appointment ${appointment.$id}:`, error);
+          return {
+            ...appointment,
+            patient: null
+          };
+        }
+      })
+    );
 
     const initialCounts = {
       scheduledCount: 0,
@@ -67,7 +91,7 @@ export const getRecentAppointmentList = async () => {
       cancelledCount: 0,
     };
 
-    const counts = (appointments.documents as Appointment[]).reduce(
+    const counts = (appointmentsWithPatients as Appointment[]).reduce(
       (acc, appointment) => {
         switch (appointment.status) {
           case "scheduled":
@@ -82,21 +106,22 @@ export const getRecentAppointmentList = async () => {
         }
         return acc;
       },
-      initialCounts
+      initialCounts,
     );
 
     const data = {
       totalCount: appointments.total,
       ...counts,
-      documents: appointments.documents,
+      documents: appointmentsWithPatients,
     };
 
     return parseStringify(data);
   } catch (error) {
     console.error(
       "An error occurred while retrieving the recent appointments:",
-      error
+      error,
     );
+    throw error;
   }
 };
 
@@ -108,7 +133,7 @@ export const sendSMSNotification = async (userId: string, content: string) => {
       ID.unique(),
       content,
       [],
-      [userId]
+      [userId],
     );
     return parseStringify(message);
   } catch (error) {
@@ -130,7 +155,7 @@ export const updateAppointment = async ({
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
       appointmentId,
-      appointment
+      appointment,
     );
 
     if (!updatedAppointment) throw Error;
@@ -151,14 +176,34 @@ export const getAppointment = async (appointmentId: string) => {
     const appointment = await databases.getDocument(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
-      appointmentId
+      appointmentId,
     );
 
     return parseStringify(appointment);
   } catch (error) {
     console.error(
       "An error occurred while retrieving the existing patient:",
-      error
+      error,
     );
+  }
+};
+
+// TEST CONNECTION
+export const testAppwriteConnection = async () => {
+  try {
+    // Try to list a single document to test connection
+    const test = await databases.listDocuments(
+      DATABASE_ID!,
+      APPOINTMENT_COLLECTION_ID!,
+      [Query.limit(1)]
+    );
+    return { success: true, message: "Connection successful" };
+  } catch (error) {
+    console.error("Connection test failed:", error);
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : "Connection failed",
+      details: error
+    };
   }
 };

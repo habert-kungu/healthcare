@@ -91,10 +91,12 @@ const RegisterForm = ({ user }: { user: User }) => {
         router.push(`/patients/${user.$id}/new-appointment`);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Registration error:", error);
+      // You might want to show this error to the user using a toast or alert
+      alert(error instanceof Error ? error.message : "Failed to register patient. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (

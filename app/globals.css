@@ -4,6 +4,10 @@
 
 /* ========================================== TAILWIND STYLES */
 @layer base {
+  :root {
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  }
+
   /* Remove scrollbar */
   .remove-scrollbar::-webkit-scrollbar {
     width: 0px;

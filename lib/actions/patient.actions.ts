@@ -90,6 +90,7 @@ export const registerPatient = async ({
     return parseStringify(newPatient);
   } catch (error) {
     console.error("An error occurred while creating a new patient:", error);
+    throw new Error(error instanceof Error ? error.message : "Failed to register patient");
   }
 };
 
@@ -102,11 +103,15 @@ export const getPatient = async (userId: string) => {
       [Query.equal("userId", [userId])]
     );
 
-    return parseStringify(patients.documents[0]);
+    const patient = patients.documents[0];
+    if (!patient) return null;
+    
+    return parseStringify(patient);
   } catch (error) {
     console.error(
       "An error occurred while retrieving the patient details:",
       error
     );
+    return null;
   }
 };
