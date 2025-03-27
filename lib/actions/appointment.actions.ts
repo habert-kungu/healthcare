@@ -121,7 +121,14 @@ export const getRecentAppointmentList = async () => {
       "An error occurred while retrieving the recent appointments:",
       error,
     );
-    throw error;
+    // Return empty data instead of throwing to prevent UI crashes
+    return parseStringify({
+      totalCount: 0,
+      scheduledCount: 0,
+      pendingCount: 0,
+      cancelledCount: 0,
+      documents: []
+    });
   }
 };
 
@@ -192,7 +199,7 @@ export const getAppointment = async (appointmentId: string) => {
 export const testAppwriteConnection = async () => {
   try {
     // Try to list a single document to test connection
-    const test = await databases.listDocuments(
+    await databases.listDocuments(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
       [Query.limit(1)]

@@ -1,15 +1,25 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 import { PatientForm } from "@/components/forms/PatientForm";
 import { PasskeyModal } from "@/components/PasskeyModal";
 
 const Home = ({ searchParams }: SearchParamProps) => {
   const isAdmin = searchParams?.admin === "true";
+  const [isPasskeyModalOpen, setIsPasskeyModalOpen] = useState(false);
 
   return (
     <div className="flex h-screen max-h-screen">
-      {isAdmin && <PasskeyModal />}
+      {isAdmin && (
+        <PasskeyModal 
+          isOpen={isPasskeyModalOpen}
+          setOpen={setIsPasskeyModalOpen}
+          path="/admin"
+        />
+      )}
 
       <section className="remove-scrollbar container my-auto">
         <div className="sub-container max-w-[496px]">

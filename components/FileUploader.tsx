@@ -14,13 +14,24 @@ type FileUploaderProps = {
 export const FileUploader = ({ files, onChange }: FileUploaderProps) => {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     onChange(acceptedFiles);
-  }, []);
+  }, [onChange]);
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const fileList = e.target.files;
+      if (fileList && fileList.length > 0) {
+        const fileArray = Array.from(fileList);
+        onChange(fileArray);
+      }
+    },
+    [onChange]
+  );
+
   return (
     <div {...getRootProps()} className="file-upload">
-      <input {...getInputProps()} />
+      <input {...getInputProps()} onChange={handleFileChange} />
       {files && files?.length > 0 ? (
         <Image
           src={convertFileToUrl(files[0])}
