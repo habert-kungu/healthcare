@@ -1,156 +1,120 @@
-# CarePlus - Healthcare Appointment Management System
+<div align="center">
+  <img src="https://img.shields.io/badge/Next.js-14-black?logo=next.js&style=for-the-badge" alt="Next.js 14">
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white&style=for-the-badge" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Appwrite-F02E65?logo=appwrite&logoColor=white&style=for-the-badge" alt="Appwrite">
+  <img src="https://img.shields.io/badge/AWS-FF9900?logo=amazonaws&logoColor=white&style=for-the-badge" alt="AWS">
 
-A modern healthcare appointment management system built with Next.js, Appwrite, and AWS.
+  <h1 align="center">✨ CarePlus ✨</h1>
+  <h3 align="center">Modern Healthcare Appointment Management System</h3>
 
-## Features
+  <p align="center">
+    Revolutionizing patient care with seamless appointment scheduling, secure data management, and real-time updates.
+  </p>
+  
+![image](https://github.com/user-attachments/assets/1e37b110-355b-43af-8406-c815b84ca380)
 
-- 🔐 Secure authentication and authorization
-- 👥 Patient registration and profile management
-- 👨‍⚕️ Doctor management
-- 📅 Appointment scheduling and management
-- 📱 Responsive design for all devices
-- 🔄 Real-time updates
-- 📊 Admin dashboard
-- 📝 Medical history tracking
-- 📄 Document management
+  [![Deploy with AWS](https://img.shields.io/badge/Deploy-AWS-orange?style=for-the-badge&logo=amazonaws)](https://aws.amazon.com/)
+  [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+</div>
 
-## Tech Stack
+## 🚀 Key Features
 
-- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
-- **Backend**: Appwrite
-- **Database**: Appwrite Database
-- **Storage**: Appwrite Storage
-- **Authentication**: Appwrite Auth
-- **Deployment**: AWS ECS (Elastic Container Service)
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="33%">
+        <strong>👥 Patient Management</strong><br>
+        Secure profiles, medical history, and document storage
+      </td>
+      <td align="center" width="33%">
+        <strong>📅 Smart Scheduling</strong><br>
+        Intuitive appointment booking with real-time availability
+      </td>
+      <td align="center" width="33%">
+        <strong>📊 Analytics Dashboard</strong><br>
+        Powerful insights for healthcare administrators
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <strong>🔐 Role-Based Access</strong><br>
+        Granular permissions for patients, doctors, and admins
+      </td>
+      <td align="center">
+        <strong>📱 Mobile-Friendly</strong><br>
+        Fully responsive design for all devices
+      </td>
+      <td align="center">
+        <strong>⚡ Real-Time Updates</strong><br>
+        Instant notifications and status changes
+      </td>
+    </tr>
+  </table>
+</div>
 
-## Prerequisites
+## 🛠️ Tech Stack
 
-- Node.js 20.x or later
-- npm or yarn
-- Appwrite instance
+### Frontend
+- **Next.js 14** with App Router
+- **TypeScript** for type safety
+- **Tailwind CSS** for utility-first styling
+- **React Hook Form** for forms
+- **Zod** for validation
+
+### Backend & Infrastructure
+- **Appwrite** for backend services
+- **Docker** for containerization
+- **AWS ECS** for deployment
+- **Sentry** for error monitoring
+- **Twilio** for notifications
+
+## 🏁 Getting Started
+
+### Prerequisites
+- Node.js 20.x+
+- Docker (for containerization)
+- Appwrite instance ([how to set up](https://appwrite.io/docs/installation))
 - AWS account (for deployment)
 
-## Environment Variables
+  
+### Set Up Environment Variables
 
-Create a `.env` file in the root directory with the following variables:
+Create a new file named .env.local in the root of your project and add the following content:
+```bash
+#APPWRITE
+NEXT_PUBLIC_ENDPOINT=https://cloud.appwrite.io/v1
+PROJECT_ID=
+API_KEY=
+DATABASE_ID=
+PATIENT_COLLECTION_ID=
+APPOINTMENT_COLLECTION_ID=
+NEXT_PUBLIC_BUCKET_ID=
 
-```env
-NEXT_PUBLIC_ENDPOINT=your_appwrite_endpoint
-PROJECT_ID=your_project_id
-API_KEY=your_api_key
-DATABASE_ID=your_database_id
-PATIENT_COLLECTION_ID=your_patient_collection_id
-DOCTOR_COLLECTION_ID=your_doctor_collection_id
-APPOINTMENT_COLLECTION_ID=your_appointment_collection_id
-NEXT_PUBLIC_BUCKET_ID=your_bucket_id
+NEXT_PUBLIC_ADMIN_PASSKEY=111111
 ```
 
-## Local Development
+### Quick Start
 
-1. Clone the repository:
 ```bash
+# 1. Clone the repository
 git clone https://github.com/yourusername/careplus.git
 cd careplus
-```
 
-2. Install dependencies:
-```bash
+# 2. Install dependencies
 npm install
-```
 
-3. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your Appwrite credentials
-```
+# 3. Set up environment variables
+cp .env.example .env.local
+# Edit .env.local with your credentials
 
-4. Run the development server:
-```bash
+# 4. Run the development server
 npm run dev
 ```
-
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Building for Production
-
-1. Build the Next.js application:
+Or Docker if it doesnot work on your matchine 
 ```bash
-npm run build
+# Build the Docker image
+docker build -t careplus-app .
+
+# Run the container
+docker run -p 3000:3000 --env-file .env.local careplus-app
 ```
-
-2. Build the Docker image:
-```bash
-docker build -t care-app .
-```
-
-3. Test the Docker image locally:
-```bash
-docker run -p 3000:3000 care-app
-```
-
-## Deployment to AWS ECS
-
-1. Create an ECR repository:
-```bash
-aws ecr create-repository --repository-name care-app
-```
-
-2. Tag and push your image to ECR:
-```bash
-aws ecr get-login-password --region your-region | docker login --username AWS --password-stdin your-account-id.dkr.ecr.your-region.amazonaws.com
-docker tag care-app:latest your-account-id.dkr.ecr.your-region.amazonaws.com/care-app:latest
-docker push your-account-id.dkr.ecr.your-region.amazonaws.com/care-app:latest
-```
-
-3. Create an ECS cluster:
-```bash
-aws ecs create-cluster --cluster-name care-cluster
-```
-
-4. Register the task definition:
-```bash
-aws ecs register-task-definition --cli-input-json file://task-definition.json
-```
-
-5. Create the service:
-```bash
-aws ecs create-service --cli-input-json file://service.json
-```
-
-## Project Structure
-
-```
-careplus/
-├── app/                    # Next.js app directory
-│   ├── admin/             # Admin dashboard
-│   ├── patients/          # Patient routes
-│   └── doctors/           # Doctor routes
-├── components/            # React components
-├── lib/                   # Utility functions and configurations
-├── public/               # Static assets
-├── types/                # TypeScript type definitions
-└── styles/               # Global styles
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For support, email support@careplus.com or create an issue in the repository.
-
-## Acknowledgments
-
-- [Next.js](https://nextjs.org/)
-- [Appwrite](https://appwrite.io/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [AWS](https://aws.amazon.com/)
