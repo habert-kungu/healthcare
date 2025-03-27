@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 
 import {
   AlertDialog,
@@ -81,7 +81,7 @@ export const PasskeyModal = ({ isOpen, setOpen, path }: PasskeyModalProps) => {
 
   return (
     <AlertDialog open={openState} onOpenChange={setOpen || setInternalOpen}>
-      <AlertDialogContent className="shad-alert-dialog py-5">
+      <AlertDialogContent className="py-5 shad-alert-dialog">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-start justify-between">
             Admin Access Verification

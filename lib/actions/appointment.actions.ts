@@ -162,7 +162,7 @@ export const updateAppointment = async ({
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
       appointmentId,
-      appointment,
+      { ...appointment }
     );
 
     if (!updatedAppointment) throw Error;
