@@ -29,7 +29,7 @@ const Home = () => {
 
             <Link
               href="/patient-form"
-              className="inline-flex w-full items-center justify-center rounded-lg bg-green-500 px-8 py-4 text-base font-semibold text-white shadow-sm transition-all hover:bg-green-600 hover:shadow-md"
+              className="inline-flex w-full items-center justify-center rounded-lg bg-green-500 px-8 py-4 text-base font-semibold text-white shadow-sm"
             >
               Get Started
               <svg
@@ -161,7 +161,7 @@ const Home = () => {
               <h3 className="mb-3 text-xl font-semibold text-white">
                 Register
               </h3>
-              <p className="text-gray-400 leading-relaxed">
+              <p className="text-gray-400 ">
                 Create your account and set up your profile
               </p>
             </div>
@@ -181,7 +181,7 @@ const Home = () => {
                 <span className="text-2xl font-bold">3</span>
               </div>
               <h3 className="mb-3 text-xl font-semibold text-white">Manage</h3>
-              <p className="text-gray-400 leading-relaxed">
+              <p className="text-gray-400 ">
                 Schedule appointments and track progress
               </p>
             </div>
@@ -190,7 +190,7 @@ const Home = () => {
                 <span className="text-2xl font-bold">4</span>
               </div>
               <h3 className="mb-3 text-xl font-semibold text-white">Analyze</h3>
-              <p className="text-gray-400 leading-relaxed">
+              <p className="text-gray-400 ">
                 Review insights and improve care delivery
               </p>
             </div>
@@ -235,7 +235,7 @@ const Home = () => {
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">© 2024 CarePluse</p>
             <Link
-              href="/?admin=true"
+              href="/admin"
               className="text-sm font-medium text-green-500 hover:text-green-400"
             >
               Admin Portal
