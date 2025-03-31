@@ -56,4 +56,3 @@ const PatientFormPage = ({ searchParams }: SearchParamProps) => {
 };
 
 export default PatientFormPage;
-
