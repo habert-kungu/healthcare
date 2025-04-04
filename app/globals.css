@@ -3,6 +3,27 @@
 @tailwind utilities;
 
 /* ========================================== TAILWIND STYLES */
+@keyframes green-glow {
+  0% {
+    outline-color: #10b981; /* emerald-500 - rich green */
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.7); /* adds glow */
+  }
+  33% {
+    outline-color: #84cc16; /* lime-500 - bright electric green */
+    box-shadow: 0 0 15px rgba(132, 204, 22, 0.8);
+  }
+  66% {
+    outline-color: #22d3ee; /* cyan-400 - teal for contrast */
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.6);
+  }
+  100% {
+    outline-color: #10b981; /* back to emerald */
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+  }
+}
+.animate-green-glow {
+  animation: green-glow 2s infinite;
+}
 @layer base {
   :root {
     font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;

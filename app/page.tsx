@@ -49,13 +49,13 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="hidden lg:block lg:w-1/2">
-          <div className="relative h-full">
+        <div className="hidden lg:block lg:w-1/2 ">
+          <div className="relative h-full  animate-[green-glow_2s_infinite]">
             <Image
               src="/assets/images/dashboard.png"
               fill
               alt="Healthcare illustration"
-              className="object-cover"
+              className="object-cover "
               priority
             />
           </div>
