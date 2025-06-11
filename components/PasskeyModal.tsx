@@ -83,7 +83,7 @@ export const PasskeyModal = ({ isOpen, setOpen, path }: PasskeyModalProps) => {
     <AlertDialog open={openState} onOpenChange={setOpen || setInternalOpen}>
       <AlertDialogContent className="py-5 shad-alert-dialog">
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-start justify-between">
+          <AlertDialogTitle className="flex items-start justify-between"> {/* Reverted to original order */}
             Admin Access Verification
             <Image
               src="/assets/icons/close.svg"
@@ -124,7 +124,7 @@ export const PasskeyModal = ({ isOpen, setOpen, path }: PasskeyModalProps) => {
           <AlertDialogFooter>
             <AlertDialogAction
               type="submit"
-              className="shad-primary-btn w-full mt-6"
+              className="shad-primary-btn mt-6 w-full" // Adjusted order: custom, spacing, sizing
             >
               Enter Admin Passkey
             </AlertDialogAction>

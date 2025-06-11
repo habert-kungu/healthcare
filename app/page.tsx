@@ -184,11 +184,11 @@ const Home = ({ searchParams }: SearchParamProps) => {
                   "Access and manage patient records securely with our digital documentation system.",
               },
             ].map((feature, index) => (
+              // Note: The multi-line comment previously here was removed as a debugging step for an ESLint parsing error.
               <motion.div
                 key={index}
-                className="rounded-lg bg-dark-400 p-8 shadow-lg transition-all hover:shadow-xl hover:translate-y-[-5px]"
-                variants={itemVariants}
-                whileHover={{ scale: 1.03 }}
+                className="rounded-lg bg-dark-400 p-8 shadow-lg transition-shadow duration-300 ease-in-out hover:shadow-xl"
+                whileHover={{ scale: 1.03, y: -5 }}
               >
                 <div className="mb-6 text-green-500">
                   <svg

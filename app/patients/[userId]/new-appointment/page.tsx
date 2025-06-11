@@ -1,10 +1,17 @@
 import Image from "next/image";
+import { redirect } from "next/navigation"; // Added import for redirect
 
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
 import { getPatient } from "@/lib/actions/patient.actions";
 
 const Appointment = async ({ params: { userId } }: SearchParamProps) => {
   const patient = await getPatient(userId);
+
+  // If no patient record exists for the given userId, redirect to the register page.
+  // This ensures that an appointment cannot be created for a non-existent patient.
+  if (!patient) {
+    redirect(`/patients/${userId}/register`);
+  }
 
   return (
     <div className="flex h-screen max-h-screen">

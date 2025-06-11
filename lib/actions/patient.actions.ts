@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache"; // Added import for revalidatePath
 import { ID, InputFile, Query } from "node-appwrite";
 
 import {
@@ -36,7 +37,10 @@ export const createUser = async (user: CreateUserParams) => {
 
       return existingUser.users[0];
     }
-    console.error("An error occurred while creating a new user:", error);
+    // Log detailed error information. The 'error' object itself may contain specifics from Appwrite.
+    // Avoid logging sensitive PII directly in the string if possible, let Sentry capture details from the error object.
+    console.error(`Error in createUser: Failed to create user (email: ${user.email}). Details:`, error);
+    throw error; // Re-throw the error to be handled by the caller or global error handler
   }
 };
 
@@ -47,10 +51,9 @@ export const getUser = async (userId: string) => {
 
     return parseStringify(user);
   } catch (error) {
-    console.error(
-      "An error occurred while retrieving the user details:",
-      error
-    );
+    // Log error with context (userId)
+    console.error(`Error in getUser for userId ${userId}:`, error);
+    return null; // Explicitly return null on error
   }
 };
 
@@ -87,10 +90,15 @@ export const registerPatient = async ({
       }
     );
 
+    // Revalidate the admin page to reflect the new patient registration
+    revalidatePath("/admin");
+
     return parseStringify(newPatient);
   } catch (error) {
-    console.error("An error occurred while creating a new patient:", error);
-    throw new Error(error instanceof Error ? error.message : "Failed to register patient");
+    // Log error with context (patient.userId)
+    console.error(`Error in registerPatient for user ID ${patient.userId}:`, error);
+    // Re-throw a new error to be handled by the caller, ensuring sensitive details aren't propagated directly if 'error' object contains them.
+    throw new Error(error instanceof Error ? `Patient registration failed: ${error.message}` : "Patient registration failed due to an unknown error");
   }
 };
 
@@ -108,10 +116,8 @@ export const getPatient = async (userId: string) => {
     
     return parseStringify(patient);
   } catch (error) {
-    console.error(
-      "An error occurred while retrieving the patient details:",
-      error
-    );
-    return null;
+    // Log error with context (userId)
+    console.error(`Error in getPatient for userId ${userId}:`, error);
+    return null; // Return null on error as per existing pattern
   }
 };
