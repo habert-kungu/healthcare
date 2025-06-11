@@ -26,10 +26,13 @@ export const createAppointment = async (
       appointment,
     );
 
+    // Revalidate the admin page to ensure the list of appointments and relevant data are updated.
     revalidatePath("/admin");
     return parseStringify(newAppointment);
   } catch (error) {
-    console.error("An error occurred while creating a new appointment:", error);
+    // Log error with context (patientId and userId from appointment object)
+    console.error(`Error in createAppointment for patient ${appointment.patient} (User: ${appointment.userId}):`, error);
+    throw error; // Re-throw the error to be handled by the caller
   }
 };
 
@@ -45,45 +48,43 @@ export const getRecentAppointmentList = async () => {
       ],
     );
 
-    // Fetch patient data for each appointment
-    const appointmentsWithPatients = await Promise.all(
-      appointments.documents.map(async (appointment: any) => {
-        try {
-          // Skip if patient reference is null or undefined
-          if (!appointment.patient || !appointment.patient.$id) {
-            console.warn(`Appointment ${appointment.$id} has no patient reference`);
-            return {
-              ...appointment,
-              patient: null
-            };
-          }
+    // Extract patient IDs from appointments
+    // This step gathers all unique patient IDs from the appointments list.
+    const patientIds = appointments.documents
+      .map((appointment: any) => appointment.patient?.$id)
+      .filter((id): id is string => !!id); // Filter out null or undefined IDs and ensure type is string
 
-          try {
-            const patient = await databases.getDocument(
-              DATABASE_ID!,
-              PATIENT_COLLECTION_ID!,
-              appointment.patient.$id
-            );
-            return {
-              ...appointment,
-              patient: patient
-            };
-          } catch (patientError) {
-            console.error(`Error fetching patient for appointment ${appointment.$id}:`, patientError);
-            return {
-              ...appointment,
-              patient: null
-            };
-          }
-        } catch (error) {
-          console.error(`Error processing appointment ${appointment.$id}:`, error);
-          return {
-            ...appointment,
-            patient: null
-          };
-        }
-      })
-    );
+    let patientsMap: { [key: string]: any } = {};
+    // Only fetch patients if there are actual patient IDs to fetch.
+    if (patientIds.length > 0) {
+      // Fetch all patient documents whose $id is in the patientIds list.
+      // This is a single query to the database, avoiding N+1 problem.
+      const patients = await databases.listDocuments(
+        DATABASE_ID!,
+        PATIENT_COLLECTION_ID!,
+        // Query for documents where $id is one of the patientIds
+        // Appwrite's Query.equal can take an array of values for equality checks.
+        [Query.equal("$id", patientIds)]
+      );
+      // Create a map of patient data with patient.$id as the key for efficient lookup.
+      patientsMap = patients.documents.reduce((acc, patient) => {
+        acc[patient.$id] = patient;
+        return acc;
+      }, {} as { [key: string]: any });
+    }
+
+    // Map patient data back to appointments
+    // This step iterates through the original appointments and enriches them with patient data.
+    const appointmentsWithPatients = appointments.documents.map((appointment: any) => {
+      // If appointment.patient or appointment.patient.$id is null or undefined,
+      // or if patient is not found in patientsMap, set patient to null.
+      // This ensures that appointments without valid patient references or patients not found are handled gracefully.
+      const patientData = appointment.patient?.$id ? patientsMap[appointment.patient.$id] : null;
+      return {
+        ...appointment,
+        patient: patientData, // Assign fetched patient data, or null if not found/applicable
+      };
+    });
 
     const initialCounts = {
       scheduledCount: 0,
@@ -117,11 +118,9 @@ export const getRecentAppointmentList = async () => {
 
     return parseStringify(data);
   } catch (error) {
-    console.error(
-      "An error occurred while retrieving the recent appointments:",
-      error,
-    );
-    // Return empty data instead of throwing to prevent UI crashes
+    // Log error with context
+    console.error("Error in getRecentAppointmentList:", error);
+    // Return empty data instead of throwing to prevent UI crashes, as per existing pattern
     return parseStringify({
       totalCount: 0,
       scheduledCount: 0,
@@ -144,7 +143,9 @@ export const sendSMSNotification = async (userId: string, content: string) => {
     );
     return parseStringify(message);
   } catch (error) {
-    console.error("An error occurred while sending sms:", error);
+    // Log error with context (userId). Avoid logging 'content' as it might be sensitive.
+    console.error(`Error in sendSMSNotification for userId ${userId}:`, error);
+    // Implicitly returns undefined, which is acceptable if SMS failure is non-critical for the calling function.
   }
 };
 
@@ -165,15 +166,22 @@ export const updateAppointment = async ({
       { ...appointment }
     );
 
-    if (!updatedAppointment) throw Error;
+    // Ensure the document was actually updated. Appwrite's updateDocument usually throws on failure,
+    // but this is an additional safeguard or for cases where it might return null.
+    if (!updatedAppointment) {
+      throw new Error("Failed to update appointment document (update operation returned no result).");
+    }
 
     const smsMessage = `Greetings from CarePulse. ${type === "schedule" ? `Your appointment is confirmed for ${formatDateTime(appointment.schedule!, timeZone).dateTime} with Dr. ${appointment.primaryPhysician}` : `We regret to inform that your appointment for ${formatDateTime(appointment.schedule!, timeZone).dateTime} is cancelled. Reason:  ${appointment.cancellationReason}`}.`;
     await sendSMSNotification(userId, smsMessage);
 
+    // Revalidate the admin page to reflect changes in appointment status or details.
     revalidatePath("/admin");
     return parseStringify(updatedAppointment);
   } catch (error) {
-    console.error("An error occurred while scheduling an appointment:", error);
+    // Log error with context (appointmentId)
+    console.error(`Error in updateAppointment for appointmentId ${appointmentId} (User: ${userId}):`, error);
+    throw error; // Re-throw the error to be handled by the caller
   }
 };
 
@@ -188,10 +196,9 @@ export const getAppointment = async (appointmentId: string) => {
 
     return parseStringify(appointment);
   } catch (error) {
-    console.error(
-      "An error occurred while retrieving the existing patient:",
-      error,
-    );
+    // Log error with context (appointmentId) and correct entity type in message
+    console.error(`Error in getAppointment for appointmentId ${appointmentId}:`, error);
+    return null; // Explicitly return null on error
   }
 };
 
